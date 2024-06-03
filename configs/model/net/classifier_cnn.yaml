@@ -1,0 +1,4 @@
+_target_: src.models.components.CNN_model.ClassifierCNN
+input_size: 28
+num_classes: 10
+pretrained_model: 'resnet34'

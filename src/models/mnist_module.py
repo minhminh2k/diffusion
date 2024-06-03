@@ -106,6 +106,8 @@ class MNISTLitModule(LightningModule):
         """
         x, y = batch
         logits = self.forward(x)
+        # print(logits.shape) # 128, 10
+        # print(y.shape) # 128
         loss = self.criterion(logits, y)
         preds = torch.argmax(logits, dim=1)
         return loss, preds, y

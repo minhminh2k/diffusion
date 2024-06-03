@@ -3,11 +3,11 @@ from typing import Any, Dict, Optional, Tuple
 import torch
 from lightning import LightningDataModule
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
-from torchvision.datasets import MNIST
+from torchvision.datasets import CIFAR10
 from torchvision.transforms import transforms
 
 
-class MNISTDataModule(LightningDataModule):
+class Cifar10DataModule(LightningDataModule):
     """`LightningDataModule` for the MNIST dataset.
 
     The MNIST database of handwritten digits has a training set of 60,000 examples, and a test set of 10,000 examples.
@@ -55,8 +55,10 @@ class MNISTDataModule(LightningDataModule):
     def __init__(
         self,
         data_dir: str = "data/",
-        train_val_test_split: Tuple[int, int, int] = (55_000, 5_000, 10_000),
-        batch_size: int = 64,
+        train_val_test_split: Tuple[int, int, int] = (45_000, 5_000, 10_000),
+        img_size: int = 32,
+        img_dims: int = 3,
+        batch_size: int = 128,
         num_workers: int = 0,
         pin_memory: bool = False,
         transform: Optional[transforms.Compose] = None,
@@ -74,21 +76,20 @@ class MNISTDataModule(LightningDataModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
-
+        
         # data transformations
         if transform is None:
             self.transform = transforms.Compose(
                 [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
             )
         else: self.transform = self.hparams.transform
-        
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
 
         self.batch_size_per_device = batch_size
-
+        
     @property
     def num_classes(self) -> int:
         """Get the number of classes.
@@ -105,8 +106,8 @@ class MNISTDataModule(LightningDataModule):
 
         Do not use it to assign state (self.x = y).
         """
-        MNIST(self.hparams.data_dir, train=True, download=True)
-        MNIST(self.hparams.data_dir, train=False, download=True)
+        CIFAR10(self.hparams.data_dir, train=True, download=True)
+        CIFAR10(self.hparams.data_dir, train=False, download=True)
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.
@@ -128,8 +129,8 @@ class MNISTDataModule(LightningDataModule):
 
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            trainset = MNIST(self.hparams.data_dir, train=True, transform=self.transform)
-            testset = MNIST(self.hparams.data_dir, train=False, transform=self.transform)
+            trainset = CIFAR10(self.hparams.data_dir, train=True, transform=self.transform)
+            testset = CIFAR10(self.hparams.data_dir, train=False, transform=self.transform)
             dataset = ConcatDataset(datasets=[trainset, testset])
             self.data_train, self.data_val, self.data_test = random_split(
                 dataset=dataset,
@@ -149,7 +150,7 @@ class MNISTDataModule(LightningDataModule):
             pin_memory=self.hparams.pin_memory,
             shuffle=True,
         )
-
+        
     def val_dataloader(self) -> DataLoader[Any]:
         """Create and return the validation dataloader.
 
@@ -162,6 +163,7 @@ class MNISTDataModule(LightningDataModule):
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
         )
+    
 
     def test_dataloader(self) -> DataLoader[Any]:
         """Create and return the test dataloader.
@@ -175,7 +177,7 @@ class MNISTDataModule(LightningDataModule):
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
         )
-
+        
     def teardown(self, stage: Optional[str] = None) -> None:
         """Lightning hook for cleaning up after `trainer.fit()`, `trainer.validate()`,
         `trainer.test()`, and `trainer.predict()`.
@@ -207,10 +209,10 @@ if __name__ == "__main__":
     import pyrootutils
 
     root = pyrootutils.setup_root(__file__, pythonpath=True)
-    cfg = omegaconf.OmegaConf.load(root / "configs" / "data" / "mnist.yaml")
+    cfg = omegaconf.OmegaConf.load(root / "configs" / "data" / "cifar10.yaml")
     cfg.data_dir = str(root / "data")
     _ = hydra.utils.instantiate(cfg)
     _.setup()
     features, labels = next(iter(_.train_dataloader()))
-    print(features.shape) # 128, 1, 28, 28
-    print(labels) # 0, 1, 2, ....
+    print(features.shape)
+    print(labels)
