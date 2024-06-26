@@ -8,6 +8,8 @@ pin_memory: False
 transform:
   _target_: torchvision.transforms.Compose
   transforms:
+    - _target_: torchvision.transforms.Resize
+      size: 32
     - _target_: torchvision.transforms.ToTensor
     - _target_: torchvision.transforms.Normalize
       mean: [0.5,]
