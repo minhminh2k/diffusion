@@ -2,8 +2,8 @@ _target_: src.models.components.diffusion.diffusion_model.DiffusionBasicModel
 
 denoise_net : 
   _target_: src.models.components.unet.unet_basic.BasicUnet
-  image_channels: 3 # 1
-  out_dim: 3 # 1
+  image_channels: ${model.img_depth} # 1
+  out_dim: ${model.img_depth} # 1
   down_channels: [64, 128, 256, 512, 1024]
   up_channels: [1024, 512, 256, 128, 64]
   time_emb_dim: 32
@@ -11,7 +11,7 @@ denoise_net :
 beta_start : 0.0001
 beta_end : 0.02
 time_steps : 1000
-img_dims: [3, 32, 32] # 1, 32, 32
-img_depth: 3
+img_dims: [1, 32, 32] # 1, 32, 32
+img_depth: ${model.img_depth}
 full_size: 1024 # 32 * 32
-dataset_name: cifar10
+dataset_name: ${model.dataset_name}

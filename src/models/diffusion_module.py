@@ -17,6 +17,8 @@ class DiffusionLitModule(LightningModule):
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
         compile: bool,
+        img_depth: int = 1,
+        dataset_name: str = 'mnist',
     ) -> None:
         
         """Initialize a `MNISTLitModule`.

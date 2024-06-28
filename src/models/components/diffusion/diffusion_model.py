@@ -59,6 +59,7 @@ class DiffusionBasicModel(nn.Module):
         return out.reshape(batch_size, *((1,) * (len(x_shape) - 1))).to(t.device)
     
     def forward(self,x_0):
+        # print(type(x_0)) # Torch.Tensor
         t = torch.randint(0,self.time_steps, (x_0.shape[0],), device = self.device).long()
         alpha_bar_t = self.batch_dimention(self.alpha_bar,t,x_0.shape)
         noise = torch.randn_like(x_0).to(self.device)
@@ -114,7 +115,7 @@ class DiffusionBasicModel(nn.Module):
         gen_samples = gen_samples.reshape(-1, gif_shape[0], gif_shape[1], int(math.sqrt(self.full_size)), int(math.sqrt(self.full_size)), self.img_depth)
         
         # Shape
-        print(gen_samples.shape)
+        print(gen_samples.shape) # 100, 1, 9, 32, 32, 1
         
         gen_samples_np = gen_samples.to("cpu").numpy()
         frames = []

@@ -1,0 +1,28 @@
+_target_: src.models.ddpm_module.DDPMModule
+
+beta_small: 0.0001
+beta_large: 0.02
+in_size: 1024 # width * height - 32 x 32
+t_range: 1000
+img_depth: 3 # channel
+dataset_name: cifar10
+
+net:
+  _target_: src.models.components.unet.attention_unet.AttentionUNet
+  _partial_: true
+  accelerator: ${trainer.accelerator}
+
+optimizer:
+  _target_: torch.optim.Adam
+  _partial_: true
+  lr: 0.001
+  weight_decay: 0.0
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _partial_: true
+  mode: min
+  factor: 0.1
+  patience: 10
+
+compile: false

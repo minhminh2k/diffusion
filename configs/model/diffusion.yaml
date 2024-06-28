@@ -17,3 +17,5 @@ scheduler:
   patience: 10
 
 compile: false
+img_depth: 1
+dataset_name: mnist

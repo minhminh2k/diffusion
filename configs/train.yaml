@@ -5,8 +5,8 @@
 defaults:
   - _self_
   - data: cifar10
-  - model: diffusion
-  - callbacks: diffusion
+  - model: ddpm
+  - callbacks: ddpm
   - logger: wandb # set logger here or use command line (e.g. `python train.py logger=tensorboard`)
   - trainer: default
   - paths: default
