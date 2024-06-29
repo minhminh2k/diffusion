@@ -8,6 +8,8 @@ import torch.nn as nn
 import numpy as np
 import wandb
 import imageio
+import torchvision.utils as vutils
+from torchvision.transforms import ToPILImage
 
 # Reference: https://github.com/awjuliani/pytorch-diffusion
 
@@ -150,6 +152,20 @@ class DDPMModule(LightningModule):
             
     ############################################################### DIFFUSION STEP ###############################################################
     ##############################################################################################################################################
+    
+    def on_train_start(self) -> None:
+        # Fixed Noise for visualize
+        n_samples = 25
+
+        # log sample real images for visualization
+        train_loader = self.trainer.train_dataloader
+
+        # EuroSAT
+        x, y = next(iter(train_loader))
+        
+        samples = x[:n_samples]
+        grid = vutils.make_grid(samples, nrow=int(np.sqrt(n_samples)), normalize=True)
+        self.logger.log_image(key='Real images', images=[ToPILImage()(grid)])
 
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
